@@ -7,6 +7,7 @@ export default class GraphNode{
         this.id=id;
         this.x=x;
         this.y=y;
+       
     }
 
     GetX(){
@@ -20,7 +21,8 @@ export default class GraphNode{
     }
 
     PlotNode(){
-        svg.append('circle').attr('cx',this.x).attr('cy',this.y).attr('r',10).attr('fill','steelblue').attr('stroke','white').attr('stroke-width',2).attr('id',"node"+this.id);
+        
+        svg.append('circle').attr('cx',this.x).attr('cy',this.y).attr('r',5).attr('fill','steelblue').attr('stroke','white').attr('stroke-width',2).attr('id',"node"+this.id);
     }
 
     

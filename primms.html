@@ -19,7 +19,23 @@
   
 
   
-
+  <style>
+    .axis path {
+        display: none;
+    }
+    .axis line {
+        stroke-opacity: 0.3;
+        shape-rendering: crispEdges;
+    }
+   
+    svg,
+    #my_dataviz {
+        width: 1900px;
+        height: 800px;
+        display: block;
+        
+    }
+    </style>
 
 
 
@@ -30,14 +46,13 @@
 
       <div class="row">
         <div class="col-sm"><button id="showHide" class="btn btn-warning">Hide Weights</button></div>
-        <div class="col-sm"><button class="btn btn-danger">Next</button></div>
-        <div class="col-sm"><button class="btn btn-warning">button3</button></div>
-        <div class="col-sm"><button class="btn btn-success">button4</button></div>
-        <div class="col-sm"><button class="btn btn-primary">button5</button></div>
+        <div class="col-sm"><label for="points" style="color:white;">Slow Control</label>
+          <input type="range" id="speedControl" name="points" min="0" max="2000" value="1000" step="100" width="400px"></div>
+          <h2 style="color:white;">MST Cost: </h2><p style="color:white;" id="cost"></p>
       </div>
     </div>
     
-    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <script type="module" src="primms.js"></script>
     

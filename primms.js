@@ -5,6 +5,7 @@ import { Tooltip } from "./grid.js";
 export let graphNodes=[];
 let graphEdges=[];
 var showWeights=true;
+var slow=1000;
 fetch("./data.json")
 .then(response => {
    return response.json();
@@ -14,8 +15,10 @@ fetch("./data.json")
   for(var key of Object.keys(data["nodes"])){
     var id=data["nodes"][key].id;
     var x=data["nodes"][key].x;
+    
     var y=data["nodes"][key].y;
     graphNodes.push(new GraphNode(id,x,y));
+    
     graphNodes[key].PlotNode();
     
   }
@@ -25,7 +28,9 @@ fetch("./data.json")
     var source=data["edges"][key].source;
     var target=data["edges"][key].target;
     var weight=data["edges"][key].weight;
+    
     graphEdges.push(new GraphEdges(id,source,target,weight));
+    d3.select("#weight"+id).text(weight);
     graphEdges[key].PlotEdge();
   }
 
@@ -44,86 +49,68 @@ fetch("./data.json")
         document.getElementById("showHide").innerHTML="Show Weights";
     }
   });
+  document.getElementById("speedControl").addEventListener('change',updateSpeed);
 
   Primms();
 
   
 });
 
+function updateSpeed(e){
+    console.log("Hello");
+    slow=d3.select(this).property("value")
+  }
+
  async function Primms(){
-    var visited=[];
-    var slow=2000;
-    visited.push(1);
-    var source=[];
-    var target=[];
-    var cost=[];
-    var currentNode=1;
-    var shortestEdgeId;
-    var targetNode;
-    var minCost;
-    var covered=[];
-    animateNode(1);
-    
-   
-    while(!AllIncluded(visited)){
-
-
-        for(var j=0;j<visited.length;j++){
-            console.log("Visited array"+visited[j]);
-            for(var i=0;i<graphEdges.length;i++){
-                if(graphEdges[i].getSource()==visited[j] && visited.indexOf(graphEdges[i].getTarget()==-1)){
-                    source.push(graphEdges[i].getSource());
-                    target.push(graphEdges[i].getTarget());
-                    cost.push(graphEdges[i].getWeight());
-                    console.log("source: "+graphEdges[i].getSource());
-                    console.log("target:"+graphEdges[i].getTarget());
-                    console.log("cost:"+graphEdges[i].getWeight());
+        var mstSet=[];
+        mstSet.push(0);
+        animateNode(0);
+        var sum=0;
+        var min;
+        var minIndex;
+        var minNode;
+        while(!AllIncluded(mstSet)){
+            console.log(mstSet);
+            min=Number.MAX_VALUE;
+            for(var i=0;i<mstSet.length;i++){
+                for(var j=0;j<graphEdges.length;j++){
+                    if(graphEdges[j].getNode1()==mstSet[i] && mstSet.indexOf(graphEdges[j].getNode2())==-1){
+                        if(graphEdges[j].getWeight()<min){
+                            min=graphEdges[j].getWeight();
+                            minIndex=j;
+                            minNode=graphEdges[j].getNode2();
+                        }
+                    }
+                    if(graphEdges[j].getNode2()==mstSet[i] && mstSet.indexOf(graphEdges[j].getNode1())==-1){
+                        if(graphEdges[j].getWeight()<min){
+                            min=graphEdges[j].getWeight();
+                            minIndex=j;
+                            minNode=graphEdges[j].getNode1();
+                        }
+                    }
                 }
             }
-        }
-       
-        var min=cost[0];
-        var minIndex=0;
-        
-        for(var i=0;i<cost.length;i++){
-            if(cost[i]<min){
-                min=cost[i];
-                minIndex=i;
-                
-            }
-
+            await new Promise(r => setTimeout(r, slow));
+            mstSet.push(minNode);
+            animateNode(minNode);
+            coverEdge(graphEdges[minIndex].getId());
+            sum=sum+graphEdges[minIndex].getWeight();
+            
         }
 
-       
-        
-        
 
-        for(var i=0;i<graphEdges.length;i++){
-            if(graphEdges[i].getSource()==source[minIndex] && graphEdges[i].getTarget()==target[minIndex]){
-                shortestEdgeId=graphEdges[i].getId();
-                currentNode=graphEdges[i].getSource();
-                targetNode=graphEdges[i].getTarget();
-                visited.push(targetNode);
-                console.log("Visited");
-                console.log("vis source: "+currentNode);
-                console.log("vis target"+targetNode);
-                console.log("vis cost"+min);
-            }
-        }
-
-        await new Promise(r => setTimeout(r, slow));
-        coverEdge(shortestEdgeId);
-        resetNode(currentNode);
-        animateNode(targetNode);
-        
-    }
-
+        console.log(sum);
+        document.getElementById("cost").innerHTML=sum;
         
         
-        
-    
-    
 }
+
+        
+        
+        
+    
+    
+
 
 function notIn(id,mstSet){
     if(mstSet.indexOf(id)==-1){
